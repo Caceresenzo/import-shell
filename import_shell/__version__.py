@@ -1,0 +1,6 @@
+__title__ = 'import-shell'
+__description__ = 'import-shell - Start testing your code with a quick command!'
+__version__ = '0.1.0'
+__author__ = 'Enzo CACERES'
+__author_email__ = 'caceresenzo1502@gmail.com'
+__url__ = 'https://github.com/Caceresenzo/import-shell'
