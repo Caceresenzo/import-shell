@@ -35,12 +35,16 @@ def load_common_imports():
 
 
 def load_imports(
-    package_names: typing.List[str],
+    package_names: typing.List[typing.Union[str, typing.Tuple[str, str]]],
 ):
     imports = {}
 
     for package_name in package_names:
-        _load(imports, package_name)
+        if isinstance(package_name, tuple):
+            package_name, alias = package_name
+            _load(imports, package_name, [alias])
+        else:
+            _load(imports, package_name)
 
     return imports
 
@@ -55,7 +59,7 @@ def _get_readline():
 
 
 def start_session(
-    package_names: typing.List[str],
+    package_names: typing.List[typing.Union[str, typing.Tuple[str, str]]],
     history_file_path=DEFAULT_HISTORY_FILE_PATH
 ):
     common = load_common_imports()
