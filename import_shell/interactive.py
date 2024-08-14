@@ -60,9 +60,10 @@ def _get_readline():
 
 def start_session(
     package_names: typing.List[typing.Union[str, typing.Tuple[str, str]]],
+    no_common=False,
     history_file_path=DEFAULT_HISTORY_FILE_PATH
 ):
-    common = load_common_imports()
+    common = {} if no_common else load_common_imports()
     user = load_imports(package_names)
 
     locals = {
