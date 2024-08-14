@@ -5,6 +5,10 @@ import rlcompleter
 import sys
 import typing
 
+
+from .constants import DEFAULT_HISTORY_FILE_PATH
+
+
 def _load(imports: typing.Dict[str, typing.Any], name: str, aliases=[]):
     try:
         module = importlib.import_module(name)
@@ -52,7 +56,7 @@ def _get_readline():
 
 def start_session(
     package_names: typing.List[str],
-    history_file_path: str = ""
+    history_file_path=DEFAULT_HISTORY_FILE_PATH
 ):
     common = load_common_imports()
     user = load_imports(package_names)
@@ -61,7 +65,7 @@ def start_session(
         **common,
         **user,
     }
-    
+
     banner = "available imports:\n"
     for name, module in user.items():
         location = getattr(module, '__path__', module.__name__) if module is not None else None
