@@ -33,9 +33,8 @@ def cli(
     no_common: bool,
     package_names: typing.List[str]
 ):
-    if any("," in x for x in package_names):
-        line = " ".join(package_names)
-        package_names = _parse(line)
+    line = " ".join(package_names)
+    package_names = _parse(line)
 
     start_session(
         package_names=list(package_names),
