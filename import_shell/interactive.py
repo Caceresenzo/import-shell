@@ -5,19 +5,25 @@ import rlcompleter
 import sys
 import typing
 
-
 from .constants import DEFAULT_HISTORY_FILE_PATH
 
 
-def _load(imports: typing.Dict[str, typing.Any], name: str, aliases=[]):
+def _load(
+    imports: typing.Dict[str, typing.Any],
+    name: str,
+    alias: typing.Optional[str] = None,
+    only_aliases=False,
+):
     try:
         module = importlib.import_module(name)
     except (ModuleNotFoundError, NameError) as error:
         print(f"cannot load {name}: {error}", file=sys.stderr)
         module = None
 
-    imports[name] = module
-    for alias in aliases:
+    if not only_aliases:
+        imports[name] = module
+
+    if alias:
         imports[alias] = module
 
 
@@ -28,8 +34,8 @@ def load_common_imports():
     }
 
     _load(imports, "json")
-    _load(imports, "pandas", ["pd"])
-    _load(imports, "numpy", ["np"])
+    _load(imports, "pandas", "pd")
+    _load(imports, "numpy", "np")
 
     return imports
 
@@ -42,7 +48,7 @@ def load_imports(
     for package_name in package_names:
         if isinstance(package_name, tuple):
             package_name, alias = package_name
-            _load(imports, package_name, [alias])
+            _load(imports, package_name, alias, only_aliases=True)
         else:
             _load(imports, package_name)
 
