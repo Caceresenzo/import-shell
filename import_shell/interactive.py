@@ -14,17 +14,24 @@ def _load(
     alias: typing.Optional[str] = None,
     only_aliases=False,
 ):
+    key = alias or name.split(".", 2)[0]
+    suffix = f"as {alias}" if alias is not None else ""
+
     try:
-        module = importlib.import_module(name)
+        globals_ = {}
+        exec(f"\nimport {name} {suffix}\n", globals_)
+        module = globals_[key]
     except (ModuleNotFoundError, NameError) as error:
         print(f"cannot load {name}: {error}", file=sys.stderr)
         module = None
 
     if not only_aliases:
-        imports[name] = module
+        imports[key] = module
 
-    if alias:
+    if alias is not None:
         imports[alias] = module
+
+    return module
 
 
 def load_common_imports():
@@ -45,14 +52,22 @@ def load_imports(
 ):
     imports = {}
 
+    banner = "available imports:\n"
     for package_name in package_names:
         if isinstance(package_name, tuple):
             package_name, alias = package_name
-            _load(imports, package_name, alias, only_aliases=True)
-        else:
-            _load(imports, package_name)
+            module = _load(imports, package_name, alias, only_aliases=True)
 
-    return imports
+            display_name = f"{package_name} (as {alias})"
+        else:
+            module = _load(imports, package_name)
+
+            display_name = package_name
+
+        location = getattr(module, '__path__', module.__name__) if module is not None else None
+        banner += f"{display_name}: {location}\n"
+
+    return imports, banner
 
 
 def _get_readline():
@@ -70,17 +85,12 @@ def start_session(
     history_file_path=DEFAULT_HISTORY_FILE_PATH
 ):
     common = {} if no_common else load_common_imports()
-    user = load_imports(package_names)
+    user, banner = load_imports(package_names)
 
     locals = {
         **common,
         **user,
     }
-
-    banner = "available imports:\n"
-    for name, module in user.items():
-        location = getattr(module, '__path__', module.__name__) if module is not None else None
-        banner += f"{name}: {location}\n"
 
     readline = _get_readline()
     readline.set_completer(rlcompleter.Completer(locals).complete)

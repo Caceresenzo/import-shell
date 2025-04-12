@@ -15,7 +15,7 @@ def _parse(line: str):
         if not part:
             continue
 
-        match = re.match(r"^(\w+)\s+as\s+(\w+)$", part)
+        match = re.match(r"^([\w\.]+)\s+as\s+(\w+)$", part)
         if match:
             package_names.append(tuple(match.groups()))
         else:
