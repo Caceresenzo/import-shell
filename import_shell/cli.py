@@ -4,6 +4,7 @@ import typing
 import click
 
 from .constants import DEFAULT_HISTORY_FILE_PATH
+from .inline import run_inline
 from .interactive import start_session
 
 
@@ -27,17 +28,30 @@ def _parse(line: str):
 @click.command()
 @click.option("--history-file", default=DEFAULT_HISTORY_FILE_PATH)
 @click.option("--no-common", is_flag=True)
+@click.option("--strict", is_flag=True, help="Enable strict mode for package names.")
+@click.option("-c", "code", nargs=1, type=str, help="Code to execute.")
 @click.argument("package_names", nargs=-1, type=str)
 def cli(
     history_file: str,
     no_common: bool,
-    package_names: typing.List[str]
+    strict: bool,
+    code: typing.Optional[str],
+    package_names: typing.List[str],
 ):
     line = " ".join(package_names)
     package_names = _parse(line)
 
-    start_session(
-        package_names=list(package_names),
-        no_common=no_common,
-        history_file_path=history_file,
-    )
+    if code is not None:
+        run_inline(
+            code=code,
+            package_names=list(package_names),
+            no_common=no_common,
+            strict=strict,
+        )
+    else:
+        start_session(
+            package_names=list(package_names),
+            no_common=no_common,
+            strict=strict,
+            history_file_path=history_file,
+        )
